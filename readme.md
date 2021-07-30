@@ -21,7 +21,8 @@ Release workflow: [.github/workflows/native.yml](.github/workflows/native.yml)
 
 Some notes:
 
-- Tip: Consider adding [UPX](https://upx.github.io/) into the workflow.
+- Release 0.0.2 with the use of [UPX](https://upx.github.io/)
+  (via [svenstaro/upx-action](https://github.com/svenstaro/upx-action)).
 
 - The linux executable will be statically linked.
   Just remove the `--static` option for a dynamically linked one.

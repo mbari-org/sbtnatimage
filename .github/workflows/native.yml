@@ -21,9 +21,14 @@ jobs:
         shell: bash
         run: |
           WITH_STATIC=1 sbt sbtnatimage/nativeImage
-          cd "sbtnatimage/target/native-image"
-          zip "${{ github.workspace }}/sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-linux.zip" sbtnatimage
-          cd "${{ github.workspace }}"
+      - name: Compress binary
+        uses: svenstaro/upx-action@v2
+        with:
+          file: "sbtnatimage/target/native-image/sbtnatimage"
+      - name: Zip binary
+        shell: bash
+        run: |
+          zip -j "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-linux.zip" "sbtnatimage/target/native-image/sbtnatimage"
           ls -lrth
 
       - name: Upload linux
@@ -47,9 +52,14 @@ jobs:
         shell: bash
         run: |
           sbt sbtnatimage/nativeImage
-          cd "sbtnatimage/target/native-image"
-          zip "${{ github.workspace }}/sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-apple-darwin.zip" sbtnatimage
-          cd "${{ github.workspace }}"
+      - name: Compress binary
+        uses: svenstaro/upx-action@v2
+        with:
+          file: "sbtnatimage/target/native-image/sbtnatimage"
+      - name: Zip binary
+        shell: bash
+        run: |
+          zip -j "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-apple-darwin.zip" "sbtnatimage/target/native-image/sbtnatimage"
           ls -lrth
 
       - name: Upload macos
@@ -75,6 +85,10 @@ jobs:
           tree sbtnatimage\target
           copy "sbtnatimage\target\native-image\sbtnatimage.exe" .
           dir
+      - name: Compress binary
+        uses: svenstaro/upx-action@v2
+        with:
+          file: "sbtnatimage.exe"
       - name: Upload windows
         # we zip the .exe in the release job, where we also have the RELEASE_TAG
         # (I'm just much less familiar with windows in general)
