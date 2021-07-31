@@ -21,7 +21,7 @@ Release workflow: [.github/workflows/native.yml](.github/workflows/native.yml)
 
 Some notes:
 
-- Release 0.0.2 with the use of [UPX](https://upx.github.io/)
+- Release 0.0.2+ with the use of [UPX](https://upx.github.io/)
   (via [svenstaro/upx-action](https://github.com/svenstaro/upx-action)).
 
 - The linux executable will be statically linked.
@@ -32,6 +32,3 @@ Some notes:
   will need to do something like the following to be able to run it:
   
         xattr -d com.apple.quarantine sbtnatimage
-
-- Windows executable untested.
-
