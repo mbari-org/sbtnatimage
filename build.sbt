@@ -1,5 +1,7 @@
 ThisBuild / scalaVersion := "3.0.1"
 
+import sbtassembly.AssemblyPlugin.defaultUniversalScript
+
 def baseNativeImageOptions = List(
   "--initialize-at-build-time",
   "--no-fallback",
@@ -15,7 +17,19 @@ lazy val sbtnatimage = project
   .enablePlugins(NativeImagePlugin)
   .settings(
     Compile / mainClass := Some("pkg.Test"),
+    assembly / mainClass := Some("pkg.Test"),
+    name := "sbtnatimage",
+    version := "0.0.4", 
+    // note: version to correspond to the tag to be pushed: vX.Y.Z.
+    // (other mechanisms for consistent artifact versioning are of course possible)
+    assembly / assemblyOutputPath := file(
+      s"out/${name.value}-${version.value}.jar"
+    ),
+    assembly / assemblyPrependShellScript := Some(
+      defaultUniversalScript(shebang = false)
+    ),
     nativeImageOptions ++= baseNativeImageOptions,
+    nativeImageOutput := file(s"out/${name.value}"),
     Global / lintUnusedKeysOnLoad := false,
     // the above line to avoid "there's a key that's not used by any other settings/tasks"
     // related with the next line:

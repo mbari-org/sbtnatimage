@@ -13,13 +13,19 @@ On your host machine:
 
       sbt:sbtnatimage> sbtnatimage/nativeImage
 
-      sbt:sbtnatimage> sbtnatimage/nativeImageRun hey there
-      hey there
+      sbt:sbtnatimage> sbtnatimage/nativeImageRun
+      my source location: /.../sbtnatimage/out/sbtnatimage-X.Y.Z
 
 
 Release workflow: [.github/workflows/native.yml](.github/workflows/native.yml)
 
 Some notes:
+
+- 0.0.4+
+    - Also includes a regular release for the JVM. The released .jar has a
+     [launch script prepended](https://github.com/sbt/sbt-assembly#prepending-a-launch-script).
+    - Main program prints the location of the source executable
+      (which will be the path to the .jar or the binary executable).
 
 - Release 0.0.2+ with the use of [UPX](https://upx.github.io/)
   (via [svenstaro/upx-action](https://github.com/svenstaro/upx-action)).

@@ -24,11 +24,11 @@ jobs:
       - name: Compress binary
         uses: svenstaro/upx-action@v2
         with:
-          file: "sbtnatimage/target/native-image/sbtnatimage"
+          file: "out/sbtnatimage"
       - name: Zip binary
         shell: bash
         run: |
-          zip -j "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-linux.zip" "sbtnatimage/target/native-image/sbtnatimage"
+          zip -j "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-linux.zip" "out/sbtnatimage"
           ls -lrth
 
       - name: Upload linux
@@ -55,11 +55,11 @@ jobs:
       - name: Compress binary
         uses: svenstaro/upx-action@v2
         with:
-          file: "sbtnatimage/target/native-image/sbtnatimage"
+          file: "out/sbtnatimage"
       - name: Zip binary
         shell: bash
         run: |
-          zip -j "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-apple-darwin.zip" "sbtnatimage/target/native-image/sbtnatimage"
+          zip -j "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-apple-darwin.zip" "out/sbtnatimage"
           ls -lrth
 
       - name: Upload macos
@@ -82,8 +82,7 @@ jobs:
           sbtnatimage/nativeImage
       - shell: cmd
         run: |
-          tree sbtnatimage\target
-          copy "sbtnatimage\target\native-image\sbtnatimage.exe" .
+          copy "out\sbtnatimage.exe" ".\sbtnatimage.exe"
           dir
       - name: Compress binary
         uses: svenstaro/upx-action@v2
@@ -97,9 +96,31 @@ jobs:
           path: "sbtnatimage.exe"
           name: "sbtnatimage.exe"
 
+  build_jvm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set release tag
+        run: |
+          echo "RELEASE_TAG=${GITHUB_REF#*refs/tags/v}" >> $GITHUB_ENV
+
+      - uses: olafurpg/setup-scala@v11
+      - run: git fetch --tags || true
+
+      - name: Run sbt
+        shell: bash
+        run: |
+          sbt sbtnatimage/assembly
+
+      - name: Upload jar
+        uses: actions/upload-artifact@v2
+        with:
+          path: "out/sbtnatimage-${{ env.RELEASE_TAG }}.jar"
+          name: "sbtnatimage-${{ env.RELEASE_TAG }}.jar"
+
   release:
     if: always()  # of course, can be removed/adjusted as needed
-    needs: [build_linux, build_macos, build_windows]
+    needs: [build_linux, build_macos, build_windows, build_jvm]
     runs-on: ubuntu-latest
 
     steps:
@@ -115,11 +136,11 @@ jobs:
       - name: Download linux
         uses: actions/download-artifact@v2
         with:
-          name: sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-linux.zip
+          name: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-linux.zip"
       - name: Download mac
         uses: actions/download-artifact@v2
         with:
-          name: sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-apple-darwin.zip
+          name: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-apple-darwin.zip"
 
       - name: Download windows
         uses: actions/download-artifact@v2
@@ -129,6 +150,11 @@ jobs:
         with:
           files: "sbtnatimage.exe"
           dest: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-win32.zip"
+
+      - name: Download jar
+        uses: actions/download-artifact@v2
+        with:
+          name: "sbtnatimage-${{ env.RELEASE_TAG }}.jar"
 
       - name: See downloaded artifacts
         run: |
@@ -153,7 +179,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-linux.zip"
-          asset_name: sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-linux.zip
+          asset_name: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-linux.zip"
           asset_content_type: application/zip
 
       - name: Upload release macos
@@ -163,7 +189,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-apple-darwin.zip"
-          asset_name: sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-apple-darwin.zip
+          asset_name: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-apple-darwin.zip"
           asset_content_type: application/zip
 
       - name: Upload release windows
@@ -174,4 +200,14 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-win32.zip"
           asset_name: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-win32.zip"
+          asset_content_type: application/zip
+
+      - name: Upload release jar
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: "sbtnatimage-${{ env.RELEASE_TAG }}.jar"
+          asset_name: "sbtnatimage-${{ env.RELEASE_TAG }}.jar"
           asset_content_type: application/zip
