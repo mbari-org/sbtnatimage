@@ -40,7 +40,7 @@ jobs:
   build_macos:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set release tag
         run: |
           echo "RELEASE_TAG=${GITHUB_REF#*refs/tags/v}" >> $GITHUB_ENV
@@ -71,7 +71,7 @@ jobs:
   build_windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: olafurpg/setup-scala@v11
       - run: git fetch --tags || true
       - name: Run sbt
@@ -99,7 +99,7 @@ jobs:
   build_jvm:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set release tag
         run: |
           echo "RELEASE_TAG=${GITHUB_REF#*refs/tags/v}" >> $GITHUB_ENV
@@ -124,7 +124,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set release tag
         run: |
           echo "RELEASE_TAG=${GITHUB_REF#*refs/tags/v}" >> $GITHUB_ENV
@@ -138,12 +138,12 @@ jobs:
         with:
           name: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-linux.zip"
       - name: Download mac
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-apple-darwin.zip"
 
       - name: Download windows
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: "sbtnatimage.exe"
       - uses: papeloto/action-zip@v1
@@ -152,7 +152,7 @@ jobs:
           dest: "sbtnatimage-${{ env.RELEASE_TAG }}-x86_64-pc-win32.zip"
 
       - name: Download jar
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: "sbtnatimage-${{ env.RELEASE_TAG }}.jar"
 
